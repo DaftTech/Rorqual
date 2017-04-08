@@ -3,7 +3,7 @@ name := "Rorqual"
 lazy val settings = Seq(
   version := "0.0.0",
 
-  scalaOrganization := "org.typelevel",
+  //scalaOrganization := "org.typelevel",
   scalaVersion := "2.12.1",
 
   resolvers := Seq("Artifactory" at "http://lolhens.no-ip.org/artifactory/libs-release/"),
@@ -49,6 +49,7 @@ lazy val settings = Seq(
 )
 
 lazy val root = project.in(file("."))
+  .settings(settings: _*)
   .aggregate(core)
 
 lazy val core = project.in(file("core"))
@@ -62,6 +63,8 @@ lazy val iscsi = project.in(file("iscsi"))
     JavaAppPackaging,
     UniversalPlugin)
   .settings(settings: _*)
+  .settings(libraryDependencies ++= Seq(
+  ))
   .dependsOn(core)
 
 lazy val raw = project.in(file("raw"))
