@@ -1,5 +1,6 @@
 package com.dafttech.rorqual
 
+import monix.eval.Task
 import monix.reactive.Observable
 import scodec.bits.ByteVector
 
@@ -18,8 +19,10 @@ class LockedBlockStorage(blockStorage: BlockStorage) extends BlockStorage {
   override def read(index: Long, length: Long, chunkSize: Long): Observable[ByteVector] =
     blockStorage.read(index, length, chunkSize)
 
-  override def write(index: Long, data: Observable[ByteVector]): Unit =
+  override def write(index: Long, data: Observable[ByteVector]): Task[Unit] =
     blockStorage.write(index, data)
 
-  def unlock(): Unit
+  def unlock(): Unit = ???
+
+  override def close(): Unit = blockStorage.close()
 }

@@ -1,5 +1,6 @@
 package com.dafttech.rorqual
 
+import monix.eval.Task
 import monix.reactive.Observable
 import scodec.bits.ByteVector
 
@@ -13,7 +14,7 @@ abstract class BlockStorage {
 
   def read(index: Long, length: Long, chunkSize: Long = blockSize): Observable[ByteVector]
 
-  def write(index: Long, data: Observable[ByteVector]): Unit
+  def write(index: Long, data: Observable[ByteVector]): Task[Unit]
 
   override def finalize(): Unit = close()
 
