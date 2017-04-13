@@ -1,12 +1,12 @@
 name := "Rorqual"
+organization := "com.dafttech"
+version := "0.0.0"
 
 lazy val settings = Seq(
-  version := "0.0.0",
-
-  //scalaOrganization := "org.typelevel",
+  scalaOrganization in ThisBuild := "org.typelevel",
   scalaVersion := "2.12.1",
 
-  resolvers := Seq("Artifactory" at "http://lolhens.no-ip.org/artifactory/libs-release/"),
+  resolvers := Seq("artifactory" at "http://lolhens.no-ip.org/artifactory/maven-public/"),
 
   libraryDependencies ++= Seq(
     "org.scala-lang" % "scala-reflect" % "2.12.1",
@@ -20,9 +20,9 @@ lazy val settings = Seq(
     "io.monix" %% "monix" % "2.2.4",
     "io.monix" %% "monix-cats" % "2.2.4",
     "org.atnos" %% "eff" % "4.2.0",
-    "com.typesafe.akka" %% "akka-actor" % "2.4.17",
-    "com.typesafe.akka" %% "akka-remote" % "2.4.17",
-    "com.typesafe.akka" %% "akka-stream" % "2.4.17",
+    "com.typesafe.akka" %% "akka-actor" % "2.5.0",
+    "com.typesafe.akka" %% "akka-remote" % "2.5.0",
+    "com.typesafe.akka" %% "akka-stream" % "2.5.0",
     "io.spray" %% "spray-json" % "1.3.3",
     "com.github.fommil" %% "spray-json-shapeless" % "1.3.0",
     "org.scodec" %% "scodec-bits" % "1.1.4",
@@ -30,7 +30,8 @@ lazy val settings = Seq(
     "com.github.julien-truffaut" %% "monocle-macro" % "1.4.0",
     "com.github.melrief" %% "pureconfig" % "0.7.0",
     "eu.timepit" %% "refined" % "0.8.0",
-    "eu.timepit" %% "refined-pureconfig" % "0.8.0"
+    "eu.timepit" %% "refined-pureconfig" % "0.8.0",
+    "org.lolhens" %% "ifoption" % "0.0.0"
   ),
 
   addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),
