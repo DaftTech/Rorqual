@@ -16,8 +16,8 @@ class LockedBlockStorage(blockStorage: BlockStorage) extends BlockStorage {
 
   override def blockSize = blockStorage.blockSize
 
-  override def read(index: Long, length: Long, chunkSize: Long): Observable[ByteVector] =
-    blockStorage.read(index, length, chunkSize)
+  override def read(index: Long, length: Long): Observable[ByteVector] =
+    blockStorage.read(index, length)
 
   override def write(index: Long, data: Observable[ByteVector]): Task[Unit] =
     blockStorage.write(index, data)
