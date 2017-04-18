@@ -1,6 +1,6 @@
 logLevel := Level.Warn
 
-resolvers := Seq("artifactory" at "http://lolhens.no-ip.org/artifactory/maven-public/")
+externalResolvers := Seq("artifactory" at "http://lolhens.no-ip.org/artifactory/maven-public/")
 
 addSbtPlugin("io.get-coursier" % "sbt-coursier" % "1.0.0-RC1") //M15-7
 

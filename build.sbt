@@ -6,7 +6,7 @@ lazy val settings = Seq(
   scalaOrganization in ThisBuild := "org.typelevel",
   scalaVersion := "2.12.1",
 
-  resolvers := Seq("artifactory" at "http://lolhens.no-ip.org/artifactory/maven-public/"),
+  externalResolvers := Seq("artifactory" at "http://lolhens.no-ip.org/artifactory/maven-public/"),
 
   libraryDependencies ++= Seq(
     "org.scala-lang" % "scala-reflect" % "2.12.1",
