@@ -7,11 +7,11 @@ import scodec.bits.ByteVector
 /**
   * Created by pierr on 08.04.2017.
   */
-trait LockableBlockStorage extends BlockStorage {
+trait LockableBlockStorage extends BlockStorageHandle {
   def lock(): LockedBlockStorage
 }
 
-class LockedBlockStorage(blockStorage: BlockStorage) extends BlockStorage {
+class LockedBlockStorage(blockStorage: BlockStorageHandle) extends BlockStorageHandle {
   override def size: Long = blockStorage.size
 
   override def blockSize = blockStorage.blockSize

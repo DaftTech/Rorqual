@@ -1,17 +1,16 @@
 package com.dafttech.rorqual
 
 import com.dafttech.rorqual.util.ParsableObservable._
-import monix.eval.Task
 import monix.reactive.Observable
 import scodec.bits.ByteVector
 
-/**
-  * Created by pierr on 08.04.2017.
-  */
-abstract class BlockStorage {
-  def name: String
+import scala.runtime.ScalaRunTime
 
-  def id: String
+/**
+  * Created by pierr on 19.04.2017.
+  */
+abstract class BlockStorageDevice(val id: String) {
+  def name: String
 
   def size: Long
 
@@ -24,11 +23,10 @@ abstract class BlockStorage {
     }
   }
 
-  def read(index: Long, length: Long): Observable[ByteVector]
+  override def hashCode(): Int = ScalaRunTime._hashCode(Tuple1(id))
 
-  def write(index: Long, data: Observable[ByteVector]): Task[Unit]
-
-  override def finalize(): Unit = close()
-
-  def close(): Unit
+  override def equals(obj: scala.Any): Boolean = obj match {
+    case blockStorageDevice: BlockStorageDevice => blockStorageDevice.id == id
+    case _ => false
+  }
 }

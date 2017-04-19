@@ -6,7 +6,7 @@ import scodec.bits.ByteVector
 /**
   * Created by pierr on 15.04.2017.
   */
-abstract class AlignedBlockStorage extends BlockStorage {
+abstract class AlignedBlockStorage extends BlockStorageHandle {
   override def size: Long = ???
 
   def readBlock(index: Long, length: Long): ByteVector

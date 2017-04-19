@@ -3,7 +3,7 @@ package com.dafttech.device
 import java.io.RandomAccessFile
 import java.nio.file.{Files, Path}
 
-import com.dafttech.rorqual.BlockStorage
+import com.dafttech.rorqual.BlockStorageHandle
 import monix.eval.Task
 import monix.reactive.Observable
 import scodec.bits.ByteVector
@@ -13,7 +13,7 @@ import scala.annotation.tailrec
 /**
   * Created by pierr on 09.04.2017.
   */
-class BlockFile(path: Path) extends BlockStorage {
+class BlockFile(path: Path) extends BlockStorageHandle {
   override def size: Long = Files.size(path)
 
   private val randomAccessFile = new RandomAccessFile(path.toFile, "rws")
