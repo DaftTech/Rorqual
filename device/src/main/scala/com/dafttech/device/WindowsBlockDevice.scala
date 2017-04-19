@@ -13,12 +13,27 @@ class WindowsBlockDevice {
 }
 
 object WindowsBlockDevice {
-  def listDevices: Task[List[WindowsBlockDevice]] = {
+  def listDevices: Task[List[BlockDeviceInfo]] = for {
+    devices <- listDeviceDetails
+  } yield for {
+    details <- devices
+  } yield {
+    val size = details("Size").toLong
+    val name = details("Caption")
+    val id = details("PNPDeviceID")
+    val path = {
+      val mountPoint = details("Name")
+      val prefix = """\\.\PHYSICALDRIVE"""
+      require(mountPoint.startsWith(prefix))
+      val number = mountPoint.drop(prefix.length)
+      s"""\\.\GLOBALROOT\Device\Harddisk$number"""
+    }
+    val writable = details("CapabilityDescriptions").contains("Supports Writing")
 
-    ???
+    BlockDeviceInfo(name, id, size, path)
   }
 
-  def listDeviceInfo: Task[List[Map[String, String]]] = {
+  def listDeviceDetails: Task[List[Map[String, String]]] = {
     def parseList(list: List[String]): List[Map[String, String]] = {
       val headerRow = list.head
 

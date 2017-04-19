@@ -51,4 +51,8 @@ class BlockFile(path: Path) extends BlockStorage {
     }.map(_ => ())
 
   override def close(): Unit = randomAccessFile.close()
+
+  override def name: String = ???
+
+  override def id: String = ???
 }

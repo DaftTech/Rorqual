@@ -25,4 +25,8 @@ class LockedBlockStorage(blockStorage: BlockStorage) extends BlockStorage {
   def unlock(): Unit = ???
 
   override def close(): Unit = blockStorage.close()
+
+  override def name: String = ???
+
+  override def id: String = ???
 }
