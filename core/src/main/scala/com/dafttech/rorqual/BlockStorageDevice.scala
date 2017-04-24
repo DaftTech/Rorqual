@@ -18,28 +18,26 @@ abstract class BlockStorageDevice {
 
   def blockSize: Long = 512
 
+  def writable: Boolean = true
+
   def open(writable: Boolean = false): BlockStorageHandle
 
-  def align(index: Long, data: Observable[ByteVector]): Observable[ByteVector] = {
-    val split = data.parse(index) {
-      case (position, block) =>
+  def sync(index: Long, data: Observable[ByteVector]): Observable[ByteVector] =
+    data
+      .parse(index) { (position, block) =>
         val offset = position % blockSize
         val head = block.take(blockSize - offset)
         val tail = block.drop(blockSize - offset).grouped(blockSize)
-        val chunks = head +: tail
+        val blocks = head +: tail
 
-        (position + block.size, Observable.fromIterable(chunks))
-    }
+        (position + block.size, Observable.fromIterable(blocks))
+      }
 
-    val fuse = split
-      .parse(index)((position, block) =>
-        (position + block.size, Observable(position -> block))
-      )
+  def async(index: Long, data: Observable[ByteVector]): Observable[ByteVector] =
+    sync(index, data)
+      .parse(index)((position, block) => (position + block.size, Observable(position -> block)))
       .groupBy(_._1 / blockSize)
       .mapTask(_.observable.map(_._2).toListL.map(ByteVector.concat))
-
-    fuse
-  }
 
   override def hashCode(): Int = ScalaRunTime._hashCode(Tuple1(id))
 
