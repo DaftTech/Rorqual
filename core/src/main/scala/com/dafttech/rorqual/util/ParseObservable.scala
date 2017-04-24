@@ -7,12 +7,12 @@ import monix.reactive.observers.Subscriber
 
 import scala.util.control.NonFatal
 
-private[util] final class ParseObservable[A, R](source: Observable[A],
-                                                    initial: () => R,
-                                                    f: (R, A, Boolean) => (R, Observable[B], Boolean))
-  extends Observable[R] {
+private[util] final class ParseObservable[A, R, B](source: Observable[A],
+                                                   initial: () => R,
+                                                   f: (R, Option[A]) => (R, Observable[B], Boolean))
+  extends Observable[Observable[B]] {
 
-  def unsafeSubscribeFn(out: Subscriber[R]): Cancelable = {
+  def unsafeSubscribeFn(out: Subscriber[Observable[B]]): Cancelable = {
     var streamErrors = true
     try {
       val initialState = initial()
@@ -28,8 +28,12 @@ private[util] final class ParseObservable[A, R](source: Observable[A],
             // Protects calls to user code from within the operator,
             // as a matter of contract.
             try {
-              state = f(state, elem)
-              Continue
+              val (newState, result, last) = f(state, Some(elem))
+              state = newState
+              out.onNext(result)
+
+              if (last) Stop
+              else Continue
             } catch {
               case NonFatal(ex) =>
                 onError(ex)
@@ -40,13 +44,20 @@ private[util] final class ParseObservable[A, R](source: Observable[A],
           def onComplete(): Unit =
             if (!isDone) {
               isDone = true
-              out.onNext(state)
+
+              val (_, result, _) = f(state, None)
+              out.onNext(result)
+
               out.onComplete()
             }
 
           def onError(ex: Throwable): Unit =
             if (!isDone) {
               isDone = true
+
+              val (_, result, _) = f(state, None)
+              out.onNext(result)
+
               out.onError(ex)
             }
         })

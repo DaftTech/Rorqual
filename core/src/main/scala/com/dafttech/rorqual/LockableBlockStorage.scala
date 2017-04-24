@@ -11,22 +11,14 @@ trait LockableBlockStorage extends BlockStorageHandle {
   def lock(): LockedBlockStorage
 }
 
-class LockedBlockStorage(blockStorage: BlockStorageHandle) extends BlockStorageHandle {
-  override def size: Long = blockStorage.size
-
-  override def blockSize = blockStorage.blockSize
-
+class LockedBlockStorage(handle: BlockStorageHandle) extends BlockStorageHandle(handle.device) {
   override def read(index: Long, length: Long): Observable[ByteVector] =
-    blockStorage.read(index, length)
+    handle.read(index, length)
 
   override def write(index: Long, data: Observable[ByteVector]): Task[Unit] =
-    blockStorage.write(index, data)
+    handle.write(index, data)
 
   def unlock(): Unit = ???
 
-  override def close(): Unit = blockStorage.close()
-
-  override def name: String = ???
-
-  override def id: String = ???
+  override def close(): Unit = handle.close()
 }
