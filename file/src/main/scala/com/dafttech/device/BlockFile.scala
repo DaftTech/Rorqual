@@ -21,7 +21,7 @@ class BlockFile(path: Path) extends BlockStorageDevice {
 
   override def open(writable: Boolean = false): BlockStorageHandle = new Handle(writable)
 
-  class Handle(writable: Boolean) extends BlockStorageHandle(this) {
+  class Handle(writable: Boolean) extends BlockStorageHandle(this, writable) {
     private val randomAccessFile = new RandomAccessFile(path.toFile, s"r${"w" If writable Else ""}s")
 
     private def read(index: Long, length: Long, a: Boolean): ByteVector = {

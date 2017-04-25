@@ -4,8 +4,6 @@ import java.io.{BufferedReader, InputStreamReader}
 
 import monix.eval.Task
 
-import scala.concurrent.ExecutionContext
-
 /**
   * Created by pierr on 16.04.2017.
   */

@@ -7,7 +7,8 @@ import scodec.bits.ByteVector
 /**
   * Created by pierr on 08.04.2017.
   */
-abstract class BlockStorageHandle(val device: BlockStorageDevice) {
+abstract class BlockStorageHandle(val device: BlockStorageDevice,
+                                  val writable: Boolean) {
 
   def read(index: Long, length: Long): Observable[ByteVector]
 

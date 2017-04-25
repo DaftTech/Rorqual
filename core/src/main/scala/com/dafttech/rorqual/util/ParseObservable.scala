@@ -9,10 +9,10 @@ import scala.util.control.NonFatal
 
 private[util] final class ParseObservable[A, R, B](source: Observable[A],
                                                    initial: () => R,
-                                                   f: (R, Option[A]) => (R, Observable[B], Boolean))
-  extends Observable[Observable[B]] {
+                                                   f: (R, Option[A]) => (R, B, Boolean))
+  extends Observable[B] {
 
-  def unsafeSubscribeFn(out: Subscriber[Observable[B]]): Cancelable = {
+  def unsafeSubscribeFn(out: Subscriber[B]): Cancelable = {
     var streamErrors = true
     try {
       val initialState = initial()

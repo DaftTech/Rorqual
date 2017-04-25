@@ -22,20 +22,33 @@ abstract class BlockStorageDevice {
 
   def open(writable: Boolean = false): BlockStorageHandle
 
-  def sync(index: Long, data: Observable[ByteVector]): Observable[ByteVector] =
+  def align(index: Long, length: Long): Observable[(Long, Long)] = {
+    val offset = index % blockSize
+    val remaining = blockSize - offset
+
+    if (length == 0) Observable.empty
+    else if (length <= remaining) Observable((index, length))
+    else Observable.cons(
+      (index, remaining),
+      Observable.defer(align(index + remaining, length - remaining))
+    )
+  }
+
+  def alignSync(index: Long, data: Observable[ByteVector]): Observable[ByteVector] =
     data
-      .parse(index) { (position, block) =>
+      .parseFlat(index) { (position, block) =>
         val offset = position % blockSize
-        val head = block.take(blockSize - offset)
-        val tail = block.drop(blockSize - offset).grouped(blockSize)
+        val remaining = blockSize - offset
+        val head = block.take(remaining)
+        val tail = block.drop(remaining).grouped(blockSize)
         val blocks = head +: tail
 
         (position + block.size, Observable.fromIterable(blocks))
       }
 
-  def async(index: Long, data: Observable[ByteVector]): Observable[ByteVector] =
-    sync(index, data)
-      .parse(index)((position, block) => (position + block.size, Observable(position -> block)))
+  def alignAsync(index: Long, data: Observable[ByteVector]): Observable[ByteVector] =
+    alignSync(index, data)
+      .parse(index)((position, block) => (position + block.size, position -> block))
       .groupBy(_._1 / blockSize)
       .mapTask(_.observable.map(_._2).toListL.map(ByteVector.concat))
 

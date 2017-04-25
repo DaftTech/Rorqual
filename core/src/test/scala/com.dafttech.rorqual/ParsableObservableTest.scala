@@ -26,7 +26,9 @@ object ParsableObservableTest {
 
     val observable: Observable[ByteVector] = Observable(bvec(1), bvec(4), bvec(16))
 
-    val result = SmallDevice.align(0, observable).map(_.size)
-    println(Await.result(result.toListL.runAsync, Duration.Inf))
+    val result = SmallDevice.alignAsync(0, observable).map(_.size)
+    //println(Await.result(result.toListL.runAsync, Duration.Inf))
+
+    println(Await.result(SmallDevice.align(0, 16).toListL.runAsync, Duration.Inf))
   }
 }
