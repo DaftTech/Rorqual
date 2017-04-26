@@ -11,7 +11,7 @@ trait LockableBlockStorage extends BlockStorageHandle {
   def lock(): LockedBlockStorage
 }
 
-class LockedBlockStorage(handle: BlockStorageHandle) extends BlockStorageHandle(handle.device) {
+class LockedBlockStorage(handle: BlockStorageHandle) extends BlockStorageHandle(handle.device, true) {
   override def read(index: Long, length: Long): Observable[ByteVector] =
     handle.read(index, length)
 

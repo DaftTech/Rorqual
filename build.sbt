@@ -51,7 +51,7 @@ lazy val core = project.in(file("core"))
       //"com.github.melrief" %% "pureconfig" % "0.7.0",
       //"eu.timepit" %% "refined" % "0.8.0",
       //"eu.timepit" %% "refined-pureconfig" % "0.8.0",
-      "org.lolhens" %% "ifoption" % "0.1.0"
+      "org.lolhens" %% "ifoption" % "0.1.1"
     )
   )
   .settings(settings: _*)
