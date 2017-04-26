@@ -8,7 +8,7 @@ import scodec.bits.ByteVector
 /**
   * Created by pierr on 24.04.2017.
   */
-class BlockDeviceHandle(device: BlockStorageDevice) extends BlockStorageHandle(device) {
+class BlockDeviceHandle(device: BlockStorageDevice, writable: Boolean) extends BlockStorageHandle(device, writable) {
   override def read(index: Long, length: Long): Observable[ByteVector] = ???
 
   override def write(index: Long, data: Observable[ByteVector]): Task[Unit] = ???

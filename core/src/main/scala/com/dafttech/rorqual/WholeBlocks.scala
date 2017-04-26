@@ -9,8 +9,6 @@ import scala.language.postfixOps
   * Created by pierr on 25.04.2017.
   */
 trait WholeBlocks extends AlignedBlockStorage {
-  _: AlignedBlockStorage =>
-
   abstract override def readBlock(index: Long, length: Long): ByteVector = {
     val startOffset = index % device.blockSize
     val blockStart = index - startOffset
