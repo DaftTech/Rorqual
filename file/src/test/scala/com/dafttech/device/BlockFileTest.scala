@@ -14,11 +14,12 @@ import monix.execution.Scheduler.Implicits.global
   */
 object BlockFileTest {
   def main(args: Array[String]): Unit = {
-    /*new BlockFile(Paths.get("D:\\pierr\\Downloads\\test.txt")).read(0, 1000).foreach { e =>
+    def device = new FileStorageDevice(Paths.get("D:\\pierr\\Downloads\\test.txt"))
+    device.open().read(0, device.size).foreach { e =>
       println(e)
       println(e.decodeString(StandardCharsets.ISO_8859_1))
       println("asd")
-    }*/
+    }
 
     //println(Files.list(Paths.get("""\\.\GLOBALROOT""")).collect(Collectors.toList()).asScala.toList)
   }

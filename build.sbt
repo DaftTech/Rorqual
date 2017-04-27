@@ -1,3 +1,5 @@
+name := (name in ThisBuild).value
+
 inThisBuild(Seq(
   name := "Rorqual",
   organization := "com.dafttech",

@@ -34,8 +34,8 @@ object WholeBlocksTest {
 
     val handle = new TestHandle() with WholeBlocks
 
-    Await.result(handle.read(10, 503).toListL.runAsync, Duration.Inf)
+    println(Await.result(handle.read(10, 503).toListL.runAsync, Duration.Inf))
     println("---")
-    Await.result(handle.write(40, Observable(ByteVector.fill(519)(0.toByte))).runAsync, Duration.Inf)
+    Await.result(handle.write(10, Observable(ByteVector.fill(1015)(0.toByte))).runAsync, Duration.Inf)
   }
 }

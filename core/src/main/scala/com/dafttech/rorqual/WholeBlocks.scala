@@ -12,8 +12,8 @@ trait WholeBlocks extends AlignedBlockStorage {
   abstract override def readBlock(index: Long, length: Long): ByteVector = {
     val startOffset = index % device.blockSize
     val blockStart = index - startOffset
-    val endOffset = ((index + length) % device.blockSize) If_ (_ == 0) Then device.blockSize Either
-    val blockEnd = (index + length) + device.blockSize - endOffset
+    val endOffset = device.blockSize - (((index + length - 1) % device.blockSize) + 1)
+    val blockEnd = (index + length) + endOffset
 
     val block = super.readBlock(blockStart, blockEnd - blockStart)
     block.drop(startOffset).take(length)
@@ -22,12 +22,13 @@ trait WholeBlocks extends AlignedBlockStorage {
   abstract override def writeBlock(index: Long, byteVector: ByteVector): Unit = {
     val startOffset = index % device.blockSize
     val blockStart = index - startOffset
-    val endOffset = ((index + byteVector.size) % device.blockSize) If_ (_ == 0) Then device.blockSize Either
-    val blockEnd = (index + byteVector.size) + device.blockSize - endOffset
+    val endOffset = device.blockSize - (((index + byteVector.size - 1) % device.blockSize) + 1)
+    val blockEnd = (index + byteVector.size) + endOffset
+
     val fullBlock =
       if (startOffset > 0 || endOffset > 0) {
         val prevBlock = readBlock(blockStart, blockEnd - blockStart)
-        prevBlock.take(startOffset) ++ byteVector ++ prevBlock.takeRight(device.blockSize - endOffset)
+        prevBlock.take(startOffset) ++ byteVector ++ prevBlock.takeRight(endOffset)
       } else
         byteVector
 
