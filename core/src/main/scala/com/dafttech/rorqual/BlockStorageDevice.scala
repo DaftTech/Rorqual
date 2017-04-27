@@ -5,6 +5,7 @@ import monix.reactive.Observable
 import scodec.bits.ByteVector
 
 import scala.runtime.ScalaRunTime
+import scala.util.Try
 
 /**
   * Created by pierr on 19.04.2017.
@@ -20,7 +21,7 @@ abstract class BlockStorageDevice {
 
   def writable: Boolean = true
 
-  def open(writable: Boolean = false): BlockStorageHandle
+  def open(writable: Boolean = false): Try[BlockStorageHandle]
 
   def align(index: Long, length: Long): Observable[(Long, Long)] = {
     val offset = index % blockSize

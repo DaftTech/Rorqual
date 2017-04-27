@@ -6,6 +6,7 @@ import scodec.bits.ByteVector
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
+import scala.util.Try
 
 /**
   * Created by pierr on 24.04.2017.
@@ -19,7 +20,7 @@ object ParsableObservableTest {
 
       override def blockSize = 16
 
-      override def open(writable: Boolean): BlockStorageHandle = ???
+      override def open(writable: Boolean): Try[BlockStorageHandle] = ???
     }
 
     def bvec(size: Int) = ByteVector((0 until size).map(_.toByte))

@@ -6,6 +6,8 @@ import com.dafttech.os.OS.{Unix, Windows}
 import com.dafttech.os.{OS, Privilege}
 import monix.reactive.Observable
 
+import scala.util.Try
+
 /**
   * Created by pierr on 27.04.2017.
   */
@@ -15,7 +17,7 @@ class DriveStorageDevice private[device](override val id: String,
                                          override val writable: Boolean,
                                          path: Path) extends FileStorageDevice(path) {
 
-  override def open(writable: Boolean) = {
+  override def open(writable: Boolean): Try[DriveStorageHandle] = Try {
     if (writable) require(this.writable)
     require(Privilege.isPrivileged)
     new DriveStorageHandle(this, writable)

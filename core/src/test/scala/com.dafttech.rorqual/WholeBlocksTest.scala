@@ -6,6 +6,7 @@ import scodec.bits.ByteVector
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
+import scala.util.Try
 
 /**
   * Created by pierr on 26.04.2017.
@@ -15,7 +16,7 @@ object WholeBlocksTest {
     class TestHandle extends BlockStorageHandle(new BlockStorageDevice {
       override def size: Long = 50
 
-      override def open(writable: Boolean): BlockStorageHandle = ???
+      override def open(writable: Boolean): Try[BlockStorageHandle] = ???
 
       override val id: String = "asdf"
     }, true) with AlignedBlockStorage {
