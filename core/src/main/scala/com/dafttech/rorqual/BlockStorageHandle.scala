@@ -14,6 +14,8 @@ abstract class BlockStorageHandle(val device: BlockStorageDevice,
 
   def write(index: Long, data: Observable[ByteVector]): Task[Unit]
 
+  def write(index: Long, data: ByteVector): Task[Unit] = write(index, Observable.now(data))
+
   override def finalize(): Unit = close()
 
   def close(): Unit

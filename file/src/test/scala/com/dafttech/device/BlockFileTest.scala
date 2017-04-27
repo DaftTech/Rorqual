@@ -1,13 +1,14 @@
 package com.dafttech.device
 
-import java.nio.charset.{Charset, StandardCharsets}
-import java.nio.file.{Files, Paths}
-import java.util.stream.Collectors
+import java.nio.charset.StandardCharsets
+import java.nio.file.Paths
 
-import com.sun.security.auth.module.NTSystem
-
-import scala.collection.JavaConverters._
 import monix.execution.Scheduler.Implicits.global
+import org.lolhens.ifoption.implicits._
+import scodec.bits.ByteVector
+
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
 
 /**
   * Created by pierr on 09.04.2017.
@@ -15,10 +16,25 @@ import monix.execution.Scheduler.Implicits.global
 object BlockFileTest {
   def main(args: Array[String]): Unit = {
     def device = new FileStorageDevice(Paths.get("D:\\pierr\\Downloads\\test.txt"))
-    device.open().get.read(0, device.size).foreach { e =>
+
+    val opened = device.open(writable = true).get
+
+    opened.read(0, device.size).foreachL { e =>
       println(e)
       println(e.decodeString(StandardCharsets.ISO_8859_1))
       println("asd")
     }
+
+    val string =
+      """asdfjklöasd
+        |asdfjklöasd
+        |-----------------
+        |aaaaaa""".stripMargin
+
+    val byteVector = ByteVector.encodeUtf8(string).get
+
+    Await.result(
+      opened.write(30, byteVector ++ ByteVector.fill(Math.max(0, device.size - byteVector.size - 30))(0)).runAsync,
+      Duration.Inf)
   }
 }

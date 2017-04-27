@@ -28,7 +28,7 @@ abstract class BlockStorageDevice {
     val remaining = blockSize - offset
 
     if (length == 0) Observable.empty
-    else if (length <= remaining) Observable((index, length))
+    else if (length <= remaining) Observable.now((index, length))
     else Observable.cons(
       (index, remaining),
       Observable.defer(align(index + remaining, length - remaining))
