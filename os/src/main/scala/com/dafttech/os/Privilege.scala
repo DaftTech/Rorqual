@@ -8,7 +8,7 @@ import scala.util.control.NonFatal
 /**
   * Created by pierr on 15.04.2017.
   */
-class Privilege {
+object Privilege {
   lazy val isPrivileged: Boolean = {
     val prefs = Preferences.systemRoot
     val systemErr = System.err

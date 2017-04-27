@@ -2,17 +2,22 @@ package com.dafttech.os
 
 import java.io.{BufferedReader, InputStreamReader}
 
-import monix.eval.Task
+import monix.reactive.Observable
 
 /**
   * Created by pierr on 16.04.2017.
   */
 object ProcessUtil {
-  def readProcessOutput(command: String*): Task[List[String]] = Task {
-    val process = Runtime.getRuntime.exec(command.toArray)
-    val outputStream = new BufferedReader(new InputStreamReader(process.getInputStream))
-    val output = Stream.continually(Option(outputStream.readLine())).takeWhile(_.isDefined).flatten.toList
-    outputStream.close()
-    output
+  def processOutput(command: String*): Observable[String] = {
+    lazy val outputStream = {
+      val process = Runtime.getRuntime.exec(command.toArray)
+      new BufferedReader(new InputStreamReader(process.getInputStream))
+    }
+
+    Observable.repeatEval(Option(outputStream.readLine()))
+      .takeWhile(_.isDefined)
+      .map(_.get)
+      .doOnTerminate(_ => outputStream.close())
+      .cache
   }
 }

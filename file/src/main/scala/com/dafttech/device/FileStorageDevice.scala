@@ -12,5 +12,8 @@ class FileStorageDevice(val path: Path) extends BlockStorageDevice {
 
   override def size: Long = Files.size(path)
 
-  override def open(writable: Boolean = false): FileStorageHandle = new FileStorageHandle(this, writable)
+  override def open(writable: Boolean = false): FileStorageHandle = {
+    if (writable) require(this.writable)
+    new FileStorageHandle(this, writable)
+  }
 }

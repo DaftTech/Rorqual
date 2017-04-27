@@ -82,6 +82,7 @@ lazy val os = project.in(file("os"))
   .settings(
     libraryDependencies ++= Seq("org.apache.commons" % "commons-lang3" % "3.5")
   )
+  .dependsOn(core)
 
 lazy val deviceBackend = project.in(file("device"))
   .settings(settings: _*)

@@ -3,24 +3,19 @@ package com.dafttech.device
 import java.nio.file.Paths
 
 import com.dafttech.os.ProcessUtil
-import monix.eval.Task
+import monix.reactive.Observable
+import org.lolhens.ifoption.implicits._
 
 import scala.annotation.tailrec
 
 /**
   * Created by pierr on 16.04.2017.
   */
-class WindowsBlockDevice {
-
-}
-
-object WindowsBlockDevice {
-  def listDevices: Task[List[DriveStorageDevice]] = for {
-    devices <- listDeviceDetails
-  } yield for {
-    details <- devices
+private[device] object WindowsBlockDevice {
+  def listDevices: Observable[DriveStorageDevice] = (for {
+    details <- listDeviceDetails
   } yield {
-    val size = details("Size").toLong
+    val size = details("Size") If_ (_.nonEmpty) Then_ (_.toLong) Else 0L
     val name = details("Caption")
     val id = details("PNPDeviceID")
     val path = {
@@ -28,19 +23,25 @@ object WindowsBlockDevice {
       val prefix = """\\.\PHYSICALDRIVE"""
       require(mountPoint.startsWith(prefix))
       val number = mountPoint.drop(prefix.length)
-      s"""\\.\GLOBALROOT\Device\Harddisk$number"""
+      s"\\\\.\\GLOBALROOT\\Device\\Harddisk$number"
     }
     val writable = details("CapabilityDescriptions").contains("Supports Writing")
 
-    new DriveStorageDevice(id, name, size, Paths.get(path))
+    new DriveStorageDevice(id, name, size, writable, Paths.get(path))
+  }).cache
+
+  def listDeviceDetails: Observable[Map[String, String]] = {
+    val rows = ProcessUtil.processOutput("wmic", "diskdrive").cache
+    val headRowObservable = rows.headF
+    val tailRowsObservable = rows.tail
+    val rowValues = for {
+      headRow <- headRowObservable
+      rowValues <- parseCommandOutputTable(headRow, tailRowsObservable)
+    } yield rowValues
+    rowValues.cache
   }
 
-  def listDeviceDetails: Task[List[Map[String, String]]] =
-    ProcessUtil.readProcessOutput("wmic", "diskdrive").map(parseCommandOutputTable)
-
-  private def parseCommandOutputTable(list: List[String]): List[Map[String, String]] = {
-    val headerRow = list.head
-
+  private def parseCommandOutputTable(headRow: String, rows: Observable[String]): Observable[Map[String, String]] = {
     val headerParts: List[String] = {
       @tailrec
       def rec(header: String, parts: List[String]): List[String] = if (header == "") parts else {
@@ -49,13 +50,13 @@ object WindowsBlockDevice {
         rec(header.drop(part.length), part +: parts)
       }
 
-      rec(headerRow, Nil).reverse
+      rec(headRow, Nil).reverse
     }
 
     val headerPartLengths = headerParts.map(_.length)
     val headings = headerParts.map(_.trim)
 
-    val rows = list.tail.filterNot(_.isEmpty).map { row =>
+    val rowValues = rows.filter(_.nonEmpty).map { row =>
       val rowParts = {
         @tailrec
         def rec(row: String, lengths: List[Int], parts: List[String]): List[String] = if (lengths.isEmpty) parts else
@@ -67,6 +68,6 @@ object WindowsBlockDevice {
       (headings zip rowParts).toMap
     }
 
-    rows
+    rowValues
   }
 }

@@ -10,6 +10,6 @@ import scala.concurrent.duration.Duration
   */
 object BlockDeviceTest {
   def main(args: Array[String]): Unit = {
-    println(Await.result(WindowsBlockDevice.listDeviceDetails.runAsync, Duration.Inf).map(_.mkString("\n")))
+    println(Await.result(DriveStorageDevice.list.toListL.runAsync, Duration.Inf).map(_.toString).mkString("\n"))
   }
 }
