@@ -32,8 +32,13 @@ private[util] final class ParseObservable[A, R, B](source: Observable[A],
               state = newState
               out.onNext(result)
 
-              if (last) Stop
-              else Continue
+              if (last) {
+                isDone = true
+
+                out.onComplete()
+
+                Stop
+              } else Continue
             } catch {
               case NonFatal(ex) =>
                 onError(ex)

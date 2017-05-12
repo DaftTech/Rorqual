@@ -29,6 +29,6 @@ class DriveStorageDevice private[device](override val id: String,
 object DriveStorageDevice {
   def list: Observable[DriveStorageDevice] = OS() match {
     case Windows(_) => WindowsBlockDevice.listDevices
-    case _: Unix => ???
+    case _: Unix => UnixBlockDevice.listDevices
   }
 }

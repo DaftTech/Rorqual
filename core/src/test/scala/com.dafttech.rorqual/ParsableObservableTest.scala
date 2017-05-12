@@ -1,5 +1,6 @@
 package com.dafttech.rorqual
 
+import com.dafttech.rorqual.util.ParsableObservable._
 import monix.execution.Scheduler.Implicits.global
 import monix.reactive.Observable
 import scodec.bits.ByteVector
@@ -31,5 +32,10 @@ object ParsableObservableTest {
     //println(Await.result(result.toListL.runAsync, Duration.Inf))
 
     println(Await.result(SmallDevice.align(0, 16).toListL.runAsync, Duration.Inf))
+
+    println(Await.result(Observable.repeat("abc").parseWhile(0) { (last, e) =>
+      println(last)
+      (last + 1, if (last > 5) None else e)
+    }.toListL.runAsync, Duration.Inf))
   }
 }

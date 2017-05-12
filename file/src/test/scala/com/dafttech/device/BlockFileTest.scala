@@ -34,7 +34,7 @@ object BlockFileTest {
     val byteVector = ByteVector.encodeUtf8(string).get
 
     Await.result(
-      opened.write(30, byteVector ++ ByteVector.fill(Math.max(0, device.size - byteVector.size - 30))(0)).runAsync,
+      opened.writeBytes(30, byteVector ++ ByteVector.fill(Math.max(0, device.size - byteVector.size - 30))(0)).runAsync,
       Duration.Inf)
   }
 }

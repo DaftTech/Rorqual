@@ -23,7 +23,8 @@ private[device] object WindowsBlockDevice {
       val prefix = """\\.\PHYSICALDRIVE"""
       require(mountPoint.startsWith(prefix))
       val number = mountPoint.drop(prefix.length)
-      s"\\\\.\\GLOBALROOT\\Device\\Harddisk$number"
+      //s"\\\\.\\GLOBALROOT\\Device\\Harddisk$number\\Partition0"
+      s"\\\\.\\GLOBALROOT\\ArcName\\multi(0)disk(0)rdisk($number)"
     }
     val writable = details("CapabilityDescriptions").contains("Supports Writing")
 
@@ -41,7 +42,7 @@ private[device] object WindowsBlockDevice {
     rowValues.cache
   }
 
-  private def parseCommandOutputTable(headRow: String, rows: Observable[String]): Observable[Map[String, String]] = {
+  def parseCommandOutputTable(headRow: String, rows: Observable[String]): Observable[Map[String, String]] = {
     val headerParts: List[String] = {
       @tailrec
       def rec(header: String, parts: List[String]): List[String] = if (header == "") parts else {
