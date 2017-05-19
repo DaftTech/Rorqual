@@ -3,9 +3,9 @@ package com.dafttech.device
 import java.nio.file.Paths
 
 import com.dafttech.device.WindowsBlockDevice.parseCommandOutputTable
-import org.lolhens.ifoption.implicits._
 import com.dafttech.os.ProcessUtil
 import monix.reactive.Observable
+import org.lolhens.ifoption.implicits._
 
 /**
   * Created by pierr on 13.05.2017.
@@ -13,7 +13,7 @@ import monix.reactive.Observable
 private[device] object UnixBlockDevice {
   def listDevices: Observable[DriveStorageDevice] = (for {
     details <- listDeviceDetails
-    if details("TYPE") == "disk"
+      .filter(details => details("TYPE") == "disk")
   } yield {
     val size = details("SIZE") If_ (_.nonEmpty) Then_ (_.toLong) Else 0L
     val name = details("KNAME")

@@ -11,19 +11,19 @@ inThisBuild(Seq(
 
   dependencyUpdatesExclusions := moduleFilter(organization = "org.scala-lang"),
 
-  scalacOptions ++= Seq("-Xmax-classfile-name", "254")
+  scalacOptions ++= Seq("-Xmax-classfile-name", "254"),
+
+  mainClass in Compile := None
 ))
 
 lazy val settings = Seq(
   addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),
-  addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.3"),
-
-  mainClass in Compile := None
+  addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.3")
 )
 
 lazy val root = project.in(file("."))
   .settings(publishArtifact := false)
-  .aggregate(core, iscsi, fileBackend, deviceBackend, fuseFrontend)
+  .aggregate(core, iscsi, fileBackend, deviceBackend, fuseFrontend, partition)
 
 lazy val core = project.in(file("core"))
   .enablePlugins(
@@ -51,9 +51,9 @@ lazy val core = project.in(file("core"))
       //"com.github.julien-truffaut" %% "monocle-core" % "1.4.0",
       //"com.github.julien-truffaut" %% "monocle-macro" % "1.4.0",
       //"com.github.melrief" %% "pureconfig" % "0.7.0",
-      //"eu.timepit" %% "refined" % "0.8.0",
-      //"eu.timepit" %% "refined-pureconfig" % "0.8.0",
-      "org.lolhens" %% "ifoption" % "0.1.1"
+      "eu.timepit" %% "refined" % "0.8.1",
+      //"eu.timepit" %% "refined-pureconfig" % "0.8.1",
+      "org.lolhens" %% "ifoption" % "0.1.2"
     )
   )
   .settings(settings: _*)
@@ -75,7 +75,7 @@ lazy val os = project.in(file("os"))
   .settings(
     libraryDependencies ++= Seq(
       "io.monix" %% "monix" % "2.2.4",
-      "org.lolhens" %% "ifoption" % "0.1.0"
+      "org.lolhens" %% "ifoption" % "0.1.2"
     )
   )
   .settings(settings: _*)
@@ -94,3 +94,7 @@ lazy val fuseFrontend = project.in(file("fuse"))
     UniversalPlugin)
   .settings(settings: _*)
   .dependsOn(core)
+
+lazy val partition = project.in(file("partition"))
+  .settings(settings: _*)
+  .dependsOn(core, deviceBackend)

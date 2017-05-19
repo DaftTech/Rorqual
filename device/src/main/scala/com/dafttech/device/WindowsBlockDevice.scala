@@ -23,10 +23,11 @@ private[device] object WindowsBlockDevice {
       val prefix = """\\.\PHYSICALDRIVE"""
       require(mountPoint.startsWith(prefix))
       val number = mountPoint.drop(prefix.length)
-      //s"\\\\.\\GLOBALROOT\\Device\\Harddisk$number\\Partition0"
-      s"\\\\.\\GLOBALROOT\\ArcName\\multi(0)disk(0)rdisk($number)"
+      //s"\\\\.\\GLOBALROOT\\ArcName\\multi(0)disk(0)rdisk($number)"
+      s"\\\\.\\GLOBALROOT\\Device\\Harddisk$number\\Partition0"
     }
     val writable = details("CapabilityDescriptions").contains("Supports Writing")
+    require(details("BytesPerSector").toInt == 512)
 
     new DriveStorageDevice(id, name, size, writable, Paths.get(path))
   }).cache
