@@ -18,7 +18,13 @@ case class Partition(status: Int,
 
   def invalid: Boolean = !(bootable || active) || startAddress.invalid || endAddress.invalid
 
-  def toBytes: ByteVector = ???
+  def toBytes: ByteVector =
+    ByteVector.fromInt(status, size = 1) ++
+      startAddress.toBytes ++
+      ByteVector.fromInt(partitionType, size = 1) ++
+      endAddress.toBytes ++
+      ByteVector.fromLong(startSector, size = 4, ordering = ByteOrdering.LittleEndian) ++
+      ByteVector.fromLong(sectors, size = 4, ordering = ByteOrdering.LittleEndian)
 }
 
 object Partition {
