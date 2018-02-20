@@ -12,7 +12,7 @@ object Privilege {
   lazy val isPrivileged: Boolean = {
     val prefs = Preferences.systemRoot
     val systemErr = System.err
-    systemErr synchronized { // better synchroize to avoid problems with other threads that access System.err
+    systemErr synchronized { // better synchronize to avoid problems with other threads that access System.err
       System.setErr(new PrintStream((_: Int) => ()))
       try {
         prefs.put("isprivileged", "true") // SecurityException on Windows
