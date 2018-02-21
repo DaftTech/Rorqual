@@ -1,15 +1,15 @@
 package com.dafttech.rorqual.util
 
 import monix.execution.Ack.{Continue, Stop}
-import monix.execution.{Ack, Cancelable}
+import monix.execution.{Ack, Cancelable, Scheduler}
 import monix.reactive.Observable
 import monix.reactive.observers.Subscriber
 
 import scala.util.control.NonFatal
 
-private[util] final class ParseObservable[A, R, B](source: Observable[A],
-                                                   initial: () => R,
-                                                   f: (R, Option[A]) => (R, B, Boolean))
+private[util] final class TransformUntilObservable[A, R, B](source: Observable[A],
+                                                            initial: () => R,
+                                                            f: (R, Next[A]) => (R, Option[B], Boolean))
   extends Observable[B] {
 
   def unsafeSubscribeFn(out: Subscriber[B]): Cancelable = {
@@ -20,7 +20,7 @@ private[util] final class ParseObservable[A, R, B](source: Observable[A],
 
       source.unsafeSubscribeFn(
         new Subscriber.Sync[A] {
-          implicit val scheduler = out.scheduler
+          implicit val scheduler: Scheduler = out.scheduler
           private[this] var isDone = false
           private[this] var state: R = initialState
 
@@ -28,9 +28,9 @@ private[util] final class ParseObservable[A, R, B](source: Observable[A],
             // Protects calls to user code from within the operator,
             // as a matter of contract.
             try {
-              val (newState, result, last) = f(state, Some(elem))
+              val (newState, result, last) = f(state, Next.Elem(elem))
               state = newState
-              out.onNext(result)
+              result.foreach(out.onNext)
 
               if (last) {
                 isDone = true
@@ -51,8 +51,8 @@ private[util] final class ParseObservable[A, R, B](source: Observable[A],
             if (!isDone) {
               isDone = true
 
-              val (_, result, _) = f(state, None)
-              out.onNext(result)
+              val (_, result, _) = f(state, Next.Complete)
+              result.foreach(out.onNext)
 
               out.onComplete()
             }
@@ -61,8 +61,8 @@ private[util] final class ParseObservable[A, R, B](source: Observable[A],
             if (!isDone) {
               isDone = true
 
-              val (_, result, _) = f(state, None)
-              out.onNext(result)
+              val (_, result, _) = f(state, Next.Error(ex))
+              result.foreach(out.onNext)
 
               out.onError(ex)
             }

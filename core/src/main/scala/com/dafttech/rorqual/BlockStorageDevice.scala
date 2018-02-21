@@ -1,6 +1,6 @@
 package com.dafttech.rorqual
 
-import com.dafttech.rorqual.util.ParsableObservable._
+import com.dafttech.rorqual.util.TransformableObservable._
 import monix.reactive.Observable
 import scodec.bits.ByteVector
 
@@ -37,7 +37,7 @@ abstract class BlockStorageDevice {
 
   def alignSync(index: Long, data: Observable[ByteVector]): Observable[ByteVector] =
     data
-      .parseFlat(index) { (position, block) =>
+      .flatMapWithState(index) { (position, block) =>
         val offset = position % blockSize
         val remaining = blockSize - offset
         val head = block.take(remaining)
@@ -49,7 +49,7 @@ abstract class BlockStorageDevice {
 
   def alignAsync(index: Long, data: Observable[ByteVector]): Observable[ByteVector] =
     alignSync(index, data)
-      .parse(index)((position, block) => (position + block.size, position -> block))
+      .mapWithState(index)((position, block) => (position + block.size, position -> block))
       .groupBy(_._1 / blockSize)
       .mapTask(_.observable.map(_._2).toListL.map(ByteVector.concat))
 

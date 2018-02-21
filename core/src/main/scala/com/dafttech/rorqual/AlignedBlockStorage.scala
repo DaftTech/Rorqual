@@ -2,7 +2,7 @@ package com.dafttech.rorqual
 
 import java.nio.file.ReadOnlyFileSystemException
 
-import com.dafttech.rorqual.util.ParsableObservable._
+import com.dafttech.rorqual.util.TransformableObservable._
 import monix.eval.Task
 import monix.reactive.Observable
 import scodec.bits.ByteVector
@@ -28,7 +28,7 @@ trait AlignedBlockStorage extends BlockStorageHandle {
     else
       device
         .alignSync(index, data)
-        .parse(index)((position, block) => (position + block.size, position -> block))
+        .mapWithState(index)((position, block) => (position + block.size, position -> block))
         .foreachL {
           case (i, block) => writeBlock(i, block)
         }
