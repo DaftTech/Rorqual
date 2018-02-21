@@ -9,8 +9,7 @@ import scala.language.implicitConversions
   */
 class ParsableObservable[A](val observable: Observable[A]) extends AnyVal {
   def parseFlatWhile[R, B](initial: => R)(f: (R, Option[A]) => (R, Observable[B], Boolean)): Observable[B] =
-    observable
-      .publishSelector(source => new ParseObservable[A, R, Observable[B]](source, initial _, f)) // transform
+    new ParseObservable[A, R, Observable[B]](observable, initial _, f)
       .flatMap(e => e)
 
   def parseFlat[R, B](initial: => R)(f: (R, A) => (R, Observable[B])): Observable[B] =

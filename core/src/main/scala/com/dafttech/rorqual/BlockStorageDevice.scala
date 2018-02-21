@@ -23,7 +23,7 @@ abstract class BlockStorageDevice {
 
   def open(writable: Boolean = false): Try[BlockStorageHandle]
 
-  def align(index: Long, length: Long): Observable[(Long, Long)] = {
+  def blockAddresses(index: Long, length: Long): Observable[(Long, Long)] = {
     val offset = index % blockSize
     val remaining = blockSize - offset
 
@@ -31,7 +31,7 @@ abstract class BlockStorageDevice {
     else if (length <= remaining) Observable.now((index, length))
     else Observable.cons(
       (index, remaining),
-      Observable.defer(align(index + remaining, length - remaining))
+      Observable.defer(blockAddresses(index + remaining, length - remaining))
     )
   }
 

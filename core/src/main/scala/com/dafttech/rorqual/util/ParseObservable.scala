@@ -38,7 +38,8 @@ private[util] final class ParseObservable[A, R, B](source: Observable[A],
                 out.onComplete()
 
                 Stop
-              } else Continue
+              } else
+                Continue
             } catch {
               case NonFatal(ex) =>
                 onError(ex)

@@ -40,7 +40,8 @@ lazy val core = project.in(file("core"))
       "com.typesafe.akka" %% "akka-actor" % "2.5.9",
       "org.scodec" %% "scodec-bits" % "1.1.5",
       "eu.timepit" %% "refined" % "0.8.7",
-      "org.lolhens" %% "ifoption" % "0.2.1"
+      "org.lolhens" %% "ifoption" % "0.2.1",
+      "org.xerial.larray" %% "larray" % "0.4.0"
     )
   )
   .settings(settings: _*)

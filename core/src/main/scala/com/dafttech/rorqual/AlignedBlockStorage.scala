@@ -17,7 +17,7 @@ trait AlignedBlockStorage extends BlockStorageHandle {
 
   override def read(index: Long, length: Long): Observable[ByteVector] =
     device
-      .align(index, length)
+      .blockAddresses(index, length)
       .map { block =>
         readBlock(block._1, block._2)
       }

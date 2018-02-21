@@ -31,7 +31,7 @@ object ParsableObservableTest {
     val result = SmallDevice.alignAsync(0, observable).map(_.size)
     //println(Await.result(result.toListL.runAsync, Duration.Inf))
 
-    println(Await.result(SmallDevice.align(0, 16).toListL.runAsync, Duration.Inf))
+    println(Await.result(SmallDevice.blockAddresses(0, 16).toListL.runAsync, Duration.Inf))
 
     println(Await.result(Observable.repeat("abc").parseWhile(0) { (last, e) =>
       println(last)
