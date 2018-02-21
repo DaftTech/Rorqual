@@ -12,11 +12,11 @@ trait LockableBlockStorage extends BlockStorageHandle {
 }
 
 class LockedBlockStorage(handle: BlockStorageHandle) extends BlockStorageHandle(handle.device, true) {
-  override def read(index: Long, length: Long): Observable[ByteVector] =
-    handle.read(index, length)
+  override def readBytes(index: Long, length: Long): Observable[ByteVector] =
+    handle.readBytes(index, length)
 
-  override def write(index: Long, data: Observable[ByteVector]): Task[Unit] =
-    handle.write(index, data)
+  override def writeBytes(index: Long, data: Observable[ByteVector]): Task[Unit] =
+    handle.writeBytes(index, data)
 
   def unlock(): Unit = ???
 

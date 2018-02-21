@@ -23,6 +23,9 @@ abstract class BlockStorageDevice {
 
   def open(writable: Boolean = false): Try[BlockStorageHandle]
 
+  /**
+    * Returns the block-aligned address ranges for a given address range
+    */
   def blockAddresses(index: Long, length: Long): Observable[(Long, Long)] = {
     val offset = index % blockSize
     val remaining = blockSize - offset
@@ -35,18 +38,24 @@ abstract class BlockStorageDevice {
     )
   }
 
+  /**
+    * Split chunks aligned by the blockSize
+    */
   def alignSync(index: Long, data: Observable[ByteVector]): Observable[ByteVector] =
     data
       .flatMapWithState(index) { (position, block) =>
         val offset = position % blockSize
         val remaining = blockSize - offset
-        val head = block.take(remaining)
+        val head = block.take(remaining) // TODO: What if the block is smaller than "remaining"
         val tail = block.drop(remaining).grouped(blockSize)
         val blocks = head +: tail
 
         (position + block.size, Observable.fromIterable(blocks))
       }
 
+  /**
+    * Concat chunks from the same block
+    */
   def alignAsync(index: Long, data: Observable[ByteVector]): Observable[ByteVector] =
     alignSync(index, data)
       .mapWithState(index)((position, block) => (position + block.size, position -> block))
