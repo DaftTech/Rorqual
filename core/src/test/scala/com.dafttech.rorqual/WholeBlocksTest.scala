@@ -1,5 +1,6 @@
 package com.dafttech.rorqual
 
+import monix.eval.Task
 import monix.execution.Scheduler.Implicits.global
 import monix.reactive.Observable
 import scodec.bits.ByteVector
@@ -22,21 +23,21 @@ object WholeBlocksTest {
     }, true) with AlignedBlockStorage {
 
 
-      override def readBlock(index: Long, length: Long): ByteVector = {
+      override def readBlock(index: Long, length: Long): Task[ByteVector] = {
         println(s"read $index $length")
-        ByteVector.fill(length)(0)
+        Task(ByteVector.fill(length)(0))
       }
 
-      override def writeBlock(index: Long, byteVector: ByteVector): Unit =
-        println(s"write $index ${byteVector.size}")
+      override def writeBlock(index: Long, byteVector: ByteVector): Task[Unit] =
+        Task.now(println(s"write $index ${byteVector.size}"))
 
       override def close(): Unit = ???
     }
 
     val handle = new TestHandle() with WholeBlocks
 
-    println(Await.result(handle.read(10, 503).toListL.runAsync, Duration.Inf))
+    println(Await.result(handle.read(10, 503).runAsync, Duration.Inf))
     println("---")
-    Await.result(handle.write(10, Observable(ByteVector.fill(1015)(0.toByte))).runAsync, Duration.Inf)
+    Await.result(handle.writeBytes(10, Observable(ByteVector.fill(1015)(0.toByte))).runAsync, Duration.Inf)
   }
 }

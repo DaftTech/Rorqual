@@ -24,11 +24,11 @@ object BlockDeviceTest {
 
     println(diskHandle)
 
-    val mbr = Await.result(diskHandle.readBytes(0, diskHandle.device.blockSize).runAsync, Duration.Inf)
+    val mbr = Await.result(diskHandle.read(0, diskHandle.device.blockSize).runAsync, Duration.Inf)
 
     println(mbr.toSeq.map(_ & 0xFF).mkString(", "))
 
-    val gpt = Await.result(diskHandle.readBytes(diskHandle.device.blockSize, diskHandle.device.blockSize).runAsync, Duration.Inf)
+    val gpt = Await.result(diskHandle.read(diskHandle.device.blockSize, diskHandle.device.blockSize).runAsync, Duration.Inf)
 
     println("gpt dec: " + gpt.toSeq.map(_ & 0xFF).mkString(", "))
     println("gpt hex: " + gpt.toSeq.map(e => Integer.toHexString(e & 0xFF)).mkString(", "))

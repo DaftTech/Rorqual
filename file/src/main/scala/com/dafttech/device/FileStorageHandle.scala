@@ -5,6 +5,7 @@ import java.nio.channels.FileChannel
 import java.nio.file.StandardOpenOption
 
 import com.dafttech.rorqual.{AlignedBlockStorage, BlockStorageHandle}
+import monix.eval.Task
 import org.lolhens.ifoption.implicits._
 import scodec.bits.ByteVector
 
@@ -18,7 +19,7 @@ class FileStorageHandle(device: FileStorageDevice,
   private val fileChannel = FileChannel.open(device.path,
     (Seq(StandardOpenOption.READ, StandardOpenOption.SYNC) ++ (writable Then StandardOpenOption.WRITE)).toSet.asJava)
 
-  override protected def readBlock(index: Long, length: Long): ByteVector = {
+  override protected def readBlock(index: Long, length: Long): Task[ByteVector] = Task {
     require(length <= Int.MaxValue)
     val buffer = ByteBuffer.allocate(length.toInt)
     fileChannel.read(buffer, index)
@@ -26,8 +27,9 @@ class FileStorageHandle(device: FileStorageDevice,
     ByteVector.view(buffer)
   }
 
-  override protected def writeBlock(index: Long, byteVector: ByteVector): Unit =
+  override protected def writeBlock(index: Long, byteVector: ByteVector): Task[Unit] = Task(
     fileChannel.write(byteVector.toByteBuffer, index)
+  )
 
   override def close(): Unit = fileChannel.close()
 }
