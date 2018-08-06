@@ -3,23 +3,23 @@ inThisBuild(Seq(
   organization := "com.dafttech",
   version := "0.0.0",
 
-  scalaVersion := "2.12.4",
+  scalaVersion := "2.12.6",
 
   resolvers ++= Seq(
     "lolhens-maven" at "http://artifactory.lolhens.de/artifactory/maven-public/",
     Resolver.url("lolhens-ivy", url("http://artifactory.lolhens.de/artifactory/ivy-public/"))(Resolver.ivyStylePatterns)
   ),
 
-  scalacOptions ++= Seq("-Xmax-classfile-name", "127"),
+  scalacOptions ++= Seq("-Xmax-classfile-name", "254"),
 
-  mainClass in Compile := None
+  (Compile / mainClass) := None
 ))
 
-name := (name in ThisBuild).value
+name := (ThisBuild / name).value
 
 lazy val settings = Seq(
   addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full),
-  addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.6")
+  addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.7")
 )
 
 lazy val root = project.in(file("."))
@@ -34,14 +34,11 @@ lazy val core = project.in(file("core"))
     libraryDependencies ++= Seq(
       "org.slf4j" % "slf4j-api" % "1.7.25",
       "ch.qos.logback" % "logback-classic" % "1.2.3",
-      "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2",
-      "org.typelevel" %% "cats-core" % "1.0.1",
-      "io.monix" %% "monix" % "3.0.0-M3",
-      "com.typesafe.akka" %% "akka-actor" % "2.5.9",
+      "com.typesafe.scala-logging" %% "scala-logging" % "3.9.0",
+      "org.typelevel" %% "cats-core" % "1.1.0",
+      "io.monix" %% "monix" % "3.0.0-RC1",
       "org.scodec" %% "scodec-bits" % "1.1.5",
-      "eu.timepit" %% "refined" % "0.8.7",
-      "org.lolhens" %% "ifoption" % "0.2.1",
-      "org.xerial.larray" %% "larray" % "0.4.0"
+      "org.lolhens" %% "ifoption" % "0.2.1"
     )
   )
   .settings(settings: _*)
