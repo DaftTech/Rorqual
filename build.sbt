@@ -19,7 +19,7 @@ name := (ThisBuild / name).value
 
 lazy val settings = Seq(
   addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full),
-  addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.7")
+  addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.10")
 )
 
 lazy val root = project.in(file("."))
