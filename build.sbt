@@ -3,7 +3,7 @@ inThisBuild(Seq(
   organization := "com.dafttech",
   version := "0.0.0",
 
-  scalaVersion := "2.12.6",
+  scalaVersion := "2.12.16",
 
   resolvers ++= Seq(
     "lolhens-maven" at "http://artifactory.lolhens.de/artifactory/maven-public/",
