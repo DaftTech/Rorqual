@@ -37,7 +37,7 @@ lazy val core = project.in(file("core"))
       "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5",
       "org.typelevel" %% "cats-core" % "1.1.0",
       "io.monix" %% "monix" % "3.0.0-RC1",
-      "org.scodec" %% "scodec-bits" % "1.1.5",
+      "org.scodec" %% "scodec-bits" % "1.1.34",
       "org.lolhens" %% "ifoption" % "0.2.1"
     )
   )
