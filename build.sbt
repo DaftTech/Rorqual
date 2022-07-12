@@ -32,7 +32,7 @@ lazy val core = project.in(file("core"))
     UniversalPlugin)
   .settings(
     libraryDependencies ++= Seq(
-      "org.slf4j" % "slf4j-api" % "1.7.25",
+      "org.slf4j" % "slf4j-api" % "1.7.36",
       "ch.qos.logback" % "logback-classic" % "1.2.3",
       "com.typesafe.scala-logging" %% "scala-logging" % "3.9.0",
       "org.typelevel" %% "cats-core" % "1.1.0",
