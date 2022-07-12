@@ -7,7 +7,7 @@ resolvers ++= Seq(
 
 addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.6.3")
 
-addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.9.0")
+addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.9.2")
 
 addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "5.2.4")
 
