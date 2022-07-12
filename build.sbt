@@ -33,7 +33,7 @@ lazy val core = project.in(file("core"))
   .settings(
     libraryDependencies ++= Seq(
       "org.slf4j" % "slf4j-api" % "1.7.25",
-      "ch.qos.logback" % "logback-classic" % "1.2.3",
+      "ch.qos.logback" % "logback-classic" % "1.2.11",
       "com.typesafe.scala-logging" %% "scala-logging" % "3.9.0",
       "org.typelevel" %% "cats-core" % "1.1.0",
       "io.monix" %% "monix" % "3.0.0-RC1",
