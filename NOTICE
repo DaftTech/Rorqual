@@ -1,0 +1,11 @@
+Rorqual
+Copyright 2017-2026 The Rorqual Authors
+
+This product includes software developed by:
+  Pierre Kisters
+  Fabian Sachara
+  Other contributors visible in the git history.
+
+This product depends on Apache 2.0 / MIT / BSD licensed components:
+  Scala 3, Cats Effect, fs2, scodec-bits, scodec-core, MUnit, SLF4J,
+  Logback, Apache Commons Lang 3, jnr-fuse.

@@ -1,57 +1,94 @@
 package com.dafttech.rorqual.partition.mbr
 
+import com.dafttech.rorqual.partition.{ParseError, ParseResult, Severity}
+import cats.data.NonEmptyList
+import cats.data.Ior
 import scodec.bits.ByteVector
 
-/**
-  * Created by pierr on 19.05.2017.
+/** Cylinder/Head/Sector address as encoded in an MBR partition entry.
+  *
+  * Validation is *recorded*, never thrown — invalid CHS values are returned as-is
+  * with diagnostics attached, so forensic tooling can see the raw bytes.
   */
-case class CHS(cylinder: Int, head: Int, sector: Int) {
-  require(cylinder >= 0 && cylinder <= 1023, s"Cylinder index $cylinder is invalid!")
-  require(head >= 0 && head <= 255, s"Head index $head is invalid!")
-  require(sector >= 0 && sector <= 63, s"Sector index $sector is invalid!") // normally 1 - 63
+final case class CHS(cylinder: Int, head: Int, sector: Int):
 
-  def invalid: Boolean = cylinder == 0 && head == 0 && sector == 0
+  /** "Empty" sentinel — all zeros, used by some tools to mark unused entries. */
+  def isZero: Boolean = cylinder == 0 && head == 0 && sector == 0
 
-  def lba: Long = (cylinder.toLong * CHS.headsPerCylinder + head) * CHS.sectorsPerTrack + sector - 1L
+  /** Convert to LBA using the standard 255-heads / 63-sectors-per-track geometry.
+    *
+    * This is only meaningful for non-zero, in-range CHS values. Caller should
+    * check [[isZero]] and prefer the LBA fields in the partition entry when present.
+    */
+  def lba: Long =
+    (cylinder.toLong * CHS.HeadsPerCylinder + head) * CHS.SectorsPerTrack + sector - 1L
 
-  override def toString: String = s"CHS($cylinder, $head, $sector)=$lba"
+  override def toString: String = s"CHS($cylinder, $head, $sector)"
 
-  def toBytes: ByteVector = {
-    val headByte = ByteVector.fromInt(head, size = 1)
-    val sectorBits = ByteVector.fromInt(sector, size = 1).bits.takeRight(6)
-    val cylinderBits = ByteVector.fromInt(cylinder, size = 2).bits.takeRight(10)
-    headByte ++ (cylinderBits.take(2) ++ sectorBits ++ cylinderBits.drop(2)).bytes
-  }
-}
+  def toBytes: ByteVector =
+    val head8     = ByteVector.fromInt(head & 0xff, size = 1)
+    val sector6   = sector & 0x3f
+    val cylinderH = (cylinder >>> 8) & 0x03
+    val cylinderL = cylinder & 0xff
+    val midByte   = ((cylinderH << 6) | sector6) & 0xff
+    head8 ++ ByteVector(midByte.toByte, cylinderL.toByte)
 
-object CHS {
-  private val headsPerCylinder = 255
-  private val sectorsPerTrack = 63
+object CHS:
+  val HeadsPerCylinder: Int = 255
+  val SectorsPerTrack: Int  = 63
+  val Max: CHS              = CHS(cylinder = 1023, head = 254, sector = 63)
 
-  def fromBytes(bytes: ByteVector): CHS = {
-    val bits = bytes.bits
-    val head = bytes.take(1)
-    val sector = bits.drop(10).take(6).padLeft(8).bytes
-    val cylinder = (bits.drop(8).take(2).padLeft(8) ++ bits.drop(16).take(8)).bytes
+  /** Parse 3 bytes at `baseOffset` (used for error reporting).
+    *
+    * Returns the recovered CHS plus any validation diagnostics. Never throws.
+    */
+  def parse(bytes: ByteVector, baseOffset: Long, fieldPath: String): ParseResult[CHS] =
+    if bytes.size < 3 then
+      ParseResult.failure(
+        ParseError(
+          offset = baseOffset,
+          field = fieldPath,
+          message = s"truncated CHS: need 3 bytes, got ${bytes.size}",
+          severity = Severity.Fatal
+        )
+      )
+    else
+      val b0   = bytes(0) & 0xff
+      val b1   = bytes(1) & 0xff
+      val b2   = bytes(2) & 0xff
+      val head = b0
+      val sector = b1 & 0x3f
+      val cylinder = ((b1 & 0xc0) << 2) | b2
 
-    println(cylinder.toBin)
+      val chs = CHS(cylinder = cylinder, head = head, sector = sector)
 
-    CHS(
-      cylinder.toInt(signed = false),
-      head.toInt(signed = false),
-      sector.toInt(signed = false)
-    )
-  }
+      // Validate independently and collect diagnostics. Zero CHS is fine (sentinel).
+      if chs.isZero then ParseResult.success(chs)
+      else
+        val errs = List(
+          Option.when(cylinder > 1023)(
+            ParseError(baseOffset, s"$fieldPath.cylinder",
+              s"cylinder $cylinder out of range [0, 1023]", Severity.Error)
+          ),
+          Option.when(head > 254)(
+            ParseError(baseOffset, s"$fieldPath.head",
+              s"head $head out of range [0, 254]", Severity.Error)
+          ),
+          Option.when(sector < 1 || sector > 63)(
+            ParseError(baseOffset, s"$fieldPath.sector",
+              s"sector $sector out of range [1, 63]", Severity.Error)
+          )
+        ).flatten
 
-  def fromLba(lba: Long): CHS = {
-    val cylinder = lba / (headsPerCylinder * sectorsPerTrack)
-    val tmp = lba % (headsPerCylinder * sectorsPerTrack)
-    val head = tmp / sectorsPerTrack
-    val sector = tmp % sectorsPerTrack + 1
+        errs match
+          case Nil          => ParseResult.success(chs)
+          case head :: tail => Ior.Both(NonEmptyList(head, tail), chs)
 
-    if (cylinder > 1023 | head > 255 | sector > 63) Max else
-      CHS(cylinder.toInt, head.toInt, sector.toInt)
-  }
-
-  val Max = CHS(1023, 255, 63)
-}
+  /** Convert an LBA back to CHS. Returns [[Max]] if the value exceeds CHS range. */
+  def fromLba(lba: Long): CHS =
+    val cylinder = lba / (HeadsPerCylinder.toLong * SectorsPerTrack)
+    val tmp      = lba % (HeadsPerCylinder.toLong * SectorsPerTrack)
+    val head     = tmp / SectorsPerTrack
+    val sector   = (tmp % SectorsPerTrack) + 1
+    if cylinder > 1023 || head > 254 || sector > 63 then Max
+    else CHS(cylinder.toInt, head.toInt, sector.toInt)
